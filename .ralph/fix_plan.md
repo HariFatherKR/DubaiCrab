@@ -4,7 +4,7 @@
 
 ---
 
-## 🔄 현재 Phase: PM 의사결정 (Phase 3)
+## 🔄 현재 Phase: Developer - 프로젝트 초기화 (Phase 4)
 
 ---
 
@@ -33,26 +33,30 @@
 
 ---
 
-## Phase 3: PM - 의사결정 ⏳ 진행 중
+## Phase 3: PM - 의사결정 ✅ 완료
 
 ### 목표: 리서치 기반 우선순위 결정
-- [ ] 리서치 결과 vs PRD 비교 분석
-- [ ] 핵심 기능 우선순위 재정의
-- [ ] fix_plan.md 개발 태스크 업데이트
-- [ ] docs/DECISIONS.md 생성 - 의사결정 기록
-- [ ] git commit
+- [x] 리서치 결과 vs PRD 비교 분석
+- [x] 핵심 기능 우선순위 재정의
+- [x] fix_plan.md 개발 태스크 업데이트
+- [x] docs/DECISIONS.md 생성 - 의사결정 기록
+- [x] git commit
+
+**완료 일시**: 2025-02-07
 
 ---
 
-## Phase 4: Developer - 프로젝트 초기화 ⏸️
+## Phase 4: Developer - 프로젝트 초기화 ⏳ 진행 중
 
 ### 목표: 개발 환경 및 기본 구조
-- [ ] Tauri 프로젝트 초기화
-- [ ] SvelteKit 프론트엔드 설정
-- [ ] Ollama 연동 래퍼 구현
-- [ ] 기본 채팅 UI 구현
-- [ ] npm package.json 설정 (global 설치용)
-- [ ] git commit
+- [ ] 프로젝트 디렉토리 구조 생성
+- [ ] 루트 package.json 설정 (pnpm workspace)
+- [ ] Tauri 프로젝트 초기화 (src-tauri/)
+- [ ] SvelteKit 프론트엔드 설정 (src/)
+- [ ] Ollama 클라이언트 래퍼 구현 (src/lib/ollama/)
+- [ ] 기본 채팅 UI 구현 (입력 → 스트리밍 응답)
+- [ ] pnpm run validate 통과
+- [ ] git commit & push
 
 ---
 
