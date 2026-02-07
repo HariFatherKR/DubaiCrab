@@ -16,11 +16,18 @@
     "validate": "pnpm run check && pnpm run lint && pnpm run test",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build"
+    "tauri:build": "tauri build",
+    "postinstall": "node scripts/postinstall.js || true"
   },
   "bin": {
     "openklaw": "./bin/openklaw.js"
   },
+  "files": [
+    "bin/",
+    "scripts/",
+    "dist/",
+    "README.md"
+  ],
   "keywords": [
     "ai",
     "local-llm",

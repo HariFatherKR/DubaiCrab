@@ -4,7 +4,7 @@
 
 ---
 
-## 🔄 현재 Phase: Developer - 설치 패키지 (Phase 6)
+## 🔄 현재 Phase: QA - 기능 테스트 (Phase 7)
 
 ---
 
@@ -80,30 +80,33 @@
 
 ---
 
-## Phase 6: Developer - 설치 패키지 ⏳ 진행 중
+## Phase 6: Developer - 설치 패키지 ✅ 완료
 
 ### 목표: 배포 준비
-- [ ] Windows NSIS 설치 패키지 설정
-- [ ] macOS npm global 설치 설정
-- [ ] Ollama 자동 설치 스크립트 (scripts/)
-- [ ] 모델 자동 다운로드 로직 (첫 실행 시)
-- [ ] bin/openklaw.js CLI 진입점
-- [ ] pnpm run validate 통과
-- [ ] git commit & push
+- [x] Windows NSIS 설치 패키지 설정 (tauri.conf.json)
+- [x] macOS npm global 설치 설정 (package.json)
+- [x] Ollama 자동 설치 스크립트 (scripts/install-ollama.*)
+- [x] 모델 자동 다운로드 로직 (bin/openklaw.js)
+- [x] bin/openklaw.js CLI 진입점
+- [x] README.md 작성
+- [x] pnpm run validate 통과
+- [x] git commit & push
+
+**완료 일시**: 2025-02-07
 
 ---
 
-## Phase 7: QA - 기능 테스트 ⏸️
+## Phase 7: QA - 기능 테스트 ⏳ 진행 중
 
 ### 목표: 전체 기능 검증
-- [ ] 설치 테스트 (Windows)
-- [ ] 설치 테스트 (macOS npm)
+- [ ] pnpm test 통과 확인
+- [ ] pnpm build 빌드 테스트
+- [ ] Ollama 연결 테스트
 - [ ] 채팅 기능 테스트
-- [ ] HWP 파싱 테스트
+- [ ] HWP 파싱 테스트 (pyhwp 필요)
 - [ ] 이메일 작성 테스트
-- [ ] 시스템 트레이 테스트
 - [ ] docs/bugs/ 버그 리포트 작성
-- [ ] git commit
+- [ ] git commit & push
 
 ---
 
