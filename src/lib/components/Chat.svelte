@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { chat, isHealthy, type Message, DEFAULT_MODEL, SYSTEM_PROMPT } from '$lib/ollama';
+	import { incrementMessages, incrementChats, incrementEmails } from '$lib/stores/stats-store';
 	
 	interface ChatMessage {
 		id: string;
@@ -29,6 +30,8 @@
 				timestamp: new Date()
 			}];
 		} else {
+			// 새 대화 시작 통계
+			incrementChats();
 			messages = [{
 				id: 'welcome',
 				role: 'assistant',
@@ -64,6 +67,14 @@
 		inputValue = '';
 		isLoading = true;
 		
+		// 메시지 통계 업데이트
+		incrementMessages();
+		
+		// 이메일 관련 요청인지 확인
+		const isEmailRequest = userMessage.content.includes('이메일') || 
+			userMessage.content.includes('메일') ||
+			userMessage.content.includes('email');
+		
 		// 스크롤
 		setTimeout(scrollToBottom, 0);
 		
@@ -93,6 +104,11 @@
 					messages = [...messages.slice(0, -1), { ...assistantMessage }];
 					scrollToBottom();
 				}
+			}
+			
+			// 이메일 생성 통계
+			if (isEmailRequest && assistantMessage.content.length > 100) {
+				incrementEmails();
 			}
 		} catch (error) {
 			console.error('Chat error:', error);

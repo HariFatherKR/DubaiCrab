@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { loadStats, type Stats } from '$lib/stores/stats-store';
 	
 	// PM 의사결정 데이터
 	const integrationTools = [
@@ -36,19 +37,17 @@
 	];
 	
 	// 통계 (localStorage에서 가져오기)
-	let stats = $state({
+	let stats = $state<Stats>({
 		totalChats: 0,
 		totalMessages: 0,
 		hwpProcessed: 0,
-		emailsGenerated: 0
+		emailsGenerated: 0,
+		lastUsed: ''
 	});
 	
 	onMount(() => {
 		// localStorage에서 통계 로드
-		const savedStats = localStorage.getItem('openklaw_stats');
-		if (savedStats) {
-			stats = JSON.parse(savedStats);
-		}
+		stats = loadStats();
 	});
 	
 	// 진행률 계산
