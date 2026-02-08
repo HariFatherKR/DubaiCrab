@@ -3,6 +3,7 @@ use tauri::{
     tray::TrayIconBuilder,
     Manager, WindowEvent,
 };
+use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut};
 
 mod commands;
 
@@ -10,6 +11,7 @@ mod commands;
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .setup(|app| {
             // 시스템 트레이 설정
             let quit = MenuItem::with_id(app, "quit", "종료", true, None::<&str>)?;
@@ -41,6 +43,24 @@ pub fn run() {
                     }
                 })
                 .build(app)?;
+
+            // 전역 단축키 설정: Cmd/Ctrl + Shift + O
+            #[cfg(target_os = "macos")]
+            let toggle_shortcut = Shortcut::new(Some(Modifiers::SUPER | Modifiers::SHIFT), Code::KeyO);
+            #[cfg(not(target_os = "macos"))]
+            let toggle_shortcut = Shortcut::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::KeyO);
+
+            let app_handle = app.handle().clone();
+            app.global_shortcut().on_shortcut(toggle_shortcut, move |_app, _shortcut, _event| {
+                if let Some(window) = app_handle.get_webview_window("main") {
+                    if window.is_visible().unwrap_or(false) {
+                        let _ = window.hide();
+                    } else {
+                        let _ = window.show();
+                        let _ = window.set_focus();
+                    }
+                }
+            })?;
 
             Ok(())
         })

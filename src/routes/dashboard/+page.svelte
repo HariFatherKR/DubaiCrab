@@ -232,7 +232,7 @@
 	
 	.progress-bar-container {
 		height: 12px;
-		background: rgba(255, 255, 255, 0.1);
+		background: rgba(0, 0, 0, 0.06);
 		border-radius: 6px;
 		overflow: hidden;
 	}
@@ -252,13 +252,13 @@
 	
 	.progress-text {
 		font-size: 0.9rem;
-		color: rgba(255, 255, 255, 0.6);
+		color: #64748b;
 	}
 	
 	.progress-percent {
 		font-size: 1.25rem;
 		font-weight: 700;
-		color: #5eead4;
+		color: #0d9488;
 	}
 	
 	.milestone-badge {
@@ -266,24 +266,24 @@
 		align-items: center;
 		gap: 0.75rem;
 		padding: 0.75rem 1rem;
-		background: rgba(20, 184, 166, 0.1);
-		border: 1px solid rgba(20, 184, 166, 0.2);
+		background: rgba(20, 184, 166, 0.08);
+		border: 1px solid rgba(20, 184, 166, 0.15);
 		border-radius: 12px;
 		width: fit-content;
 	}
 	
 	.milestone-label {
 		font-size: 0.8rem;
-		color: rgba(255, 255, 255, 0.5);
+		color: #64748b;
 	}
 	
 	.milestone-value {
 		font-size: 0.9rem;
 		font-weight: 600;
-		color: #5eead4;
+		color: #0d9488;
 	}
 	
-	/* Table styles */
+	/* Table styles - Light theme */
 	.glass-table {
 		width: 100%;
 		border-collapse: separate;
@@ -295,15 +295,16 @@
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
-		color: rgba(255, 255, 255, 0.5);
+		color: #94a3b8;
 		text-align: left;
 		padding: 0.5rem 1rem;
 	}
 	
 	.glass-table td {
-		background: rgba(255, 255, 255, 0.03);
+		background: rgba(255, 255, 255, 0.5);
 		padding: 0.875rem 1rem;
 		font-size: 0.9rem;
+		color: #475569;
 	}
 	
 	.glass-table tr td:first-child {
@@ -316,9 +317,10 @@
 	
 	.tool-name {
 		font-weight: 500;
+		color: #1e293b;
 	}
 	
-	/* Priority badges */
+	/* Priority badges - Light theme */
 	.priority-badge {
 		display: inline-block;
 		padding: 0.25rem 0.5rem;
@@ -332,21 +334,21 @@
 		font-size: 0.7rem;
 	}
 	
-	.priority-p0 { background: rgba(239, 68, 68, 0.2); color: #f87171; }
-	.priority-p1 { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
-	.priority-p2 { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
-	.priority-p3 { background: rgba(107, 114, 128, 0.2); color: #9ca3af; }
+	.priority-p0 { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+	.priority-p1 { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+	.priority-p2 { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+	.priority-p3 { background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb; }
 	
-	/* Status colors */
-	.status-done { color: #4ade80; }
-	.status-planned { color: #fbbf24; }
-	.status-future { color: #60a5fa; }
-	.status-blocked { color: #f87171; }
+	/* Status colors - Light theme */
+	.status-done { color: #059669; font-weight: 600; }
+	.status-planned { color: #d97706; font-weight: 600; }
+	.status-future { color: #2563eb; font-weight: 600; }
+	.status-blocked { color: #dc2626; font-weight: 600; }
 	
 	/* Bar containers */
 	.bar-container {
 		height: 6px;
-		background: rgba(255, 255, 255, 0.1);
+		background: rgba(0, 0, 0, 0.06);
 		border-radius: 3px;
 		overflow: hidden;
 		min-width: 60px;
@@ -362,7 +364,7 @@
 	}
 	
 	.difficulty-bar {
-		background: linear-gradient(90deg, #4ade80, #fbbf24, #f87171);
+		background: linear-gradient(90deg, #22c55e, #eab308, #ef4444);
 	}
 	
 	/* Features list */
@@ -380,23 +382,23 @@
 		gap: 0.75rem;
 		align-items: center;
 		padding: 0.625rem 0.875rem;
-		background: rgba(255, 255, 255, 0.03);
+		background: rgba(255, 255, 255, 0.5);
 		border-radius: 10px;
 		font-size: 0.875rem;
 	}
 	
 	.feature-id {
 		font-family: 'SF Mono', Monaco, monospace;
-		color: rgba(255, 255, 255, 0.4);
+		color: #94a3b8;
 		font-size: 0.75rem;
 	}
 	
 	.feature-name {
-		color: rgba(255, 255, 255, 0.85);
+		color: #1e293b;
 	}
 	
 	.feature-effort {
-		color: rgba(255, 255, 255, 0.4);
+		color: #94a3b8;
 		font-size: 0.75rem;
 		text-align: right;
 	}
@@ -418,40 +420,40 @@
 		flex-direction: column;
 		gap: 0.25rem;
 		padding: 1rem;
-		background: rgba(255, 255, 255, 0.03);
+		background: rgba(255, 255, 255, 0.5);
 		border-radius: 12px;
 	}
 	
 	.decision-date {
 		font-family: 'SF Mono', Monaco, monospace;
 		font-size: 0.75rem;
-		color: rgba(255, 255, 255, 0.4);
+		color: #94a3b8;
 	}
 	
 	.decision-text {
 		font-weight: 500;
-		color: rgba(255, 255, 255, 0.9);
+		color: #1e293b;
 		font-size: 0.9rem;
 	}
 	
 	.decision-reason {
 		font-size: 0.8rem;
-		color: rgba(255, 255, 255, 0.5);
+		color: #64748b;
 	}
 	
-	/* CTA Card */
+	/* CTA Card - Light theme with accent */
 	.cta-card {
 		grid-column: 1 / -1;
-		background: linear-gradient(135deg, rgba(20, 184, 166, 0.2), rgba(6, 182, 212, 0.15));
+		background: linear-gradient(135deg, rgba(20, 184, 166, 0.12), rgba(6, 182, 212, 0.08));
 		backdrop-filter: blur(20px);
 		-webkit-backdrop-filter: blur(20px);
-		border: 1px solid rgba(20, 184, 166, 0.3);
+		border: 1px solid rgba(20, 184, 166, 0.2);
 		border-radius: 20px;
 		padding: 1.5rem 2rem;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		box-shadow: 0 8px 32px rgba(20, 184, 166, 0.1);
+		box-shadow: 0 8px 32px rgba(20, 184, 166, 0.08);
 	}
 	
 	.cta-content {
@@ -466,7 +468,7 @@
 	
 	.cta-icon {
 		font-size: 3rem;
-		filter: drop-shadow(0 0 20px rgba(20, 184, 166, 0.5));
+		filter: drop-shadow(0 4px 12px rgba(20, 184, 166, 0.3));
 	}
 	
 	.cta-text {
@@ -479,31 +481,33 @@
 		font-size: 0.8rem;
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
-		color: rgba(255, 255, 255, 0.5);
+		color: #64748b;
 	}
 	
 	.cta-text h3 {
 		font-size: 1.25rem;
 		font-weight: 600;
-		color: rgba(255, 255, 255, 0.95);
+		color: #1e293b;
 		margin: 0;
 	}
 	
 	.cta-button {
 		padding: 0.75rem 1.5rem;
-		background: rgba(255, 255, 255, 0.15);
-		border: 1px solid rgba(255, 255, 255, 0.2);
+		background: linear-gradient(135deg, #14b8a6, #0d9488);
+		border: none;
 		border-radius: 12px;
 		color: white;
 		text-decoration: none;
 		font-weight: 500;
 		font-size: 0.9rem;
 		transition: all 0.2s ease;
+		box-shadow: 0 4px 12px rgba(20, 184, 166, 0.25);
 	}
 	
 	.cta-button:hover {
-		background: rgba(255, 255, 255, 0.25);
+		background: linear-gradient(135deg, #0d9488, #0f766e);
 		transform: translateY(-2px);
+		box-shadow: 0 6px 20px rgba(20, 184, 166, 0.35);
 	}
 	
 	/* Responsive */

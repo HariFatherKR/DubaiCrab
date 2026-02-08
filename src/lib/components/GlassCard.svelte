@@ -34,15 +34,14 @@
 
 <style>
 	.glass-card {
-		background: rgba(255, 255, 255, 0.08);
+		/* Light glassmorphism - CoachPro style */
+		background: rgba(255, 255, 255, 0.6);
 		backdrop-filter: blur(20px);
 		-webkit-backdrop-filter: blur(20px);
-		border: 1px solid rgba(255, 255, 255, 0.1);
+		border: 1px solid rgba(255, 255, 255, 0.8);
 		border-radius: 20px;
 		padding: 1.5rem;
-		box-shadow: 
-			0 8px 32px rgba(0, 0, 0, 0.1),
-			inset 0 1px 0 rgba(255, 255, 255, 0.1);
+		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
 	}
 	
 	.glass-card.full-width {
@@ -69,13 +68,13 @@
 	.card-title h3 {
 		font-size: 1rem;
 		font-weight: 600;
-		color: rgba(255, 255, 255, 0.9);
+		color: #1e293b;
 		margin: 0;
 	}
 	
 	.card-action {
 		font-size: 0.85rem;
-		color: rgba(20, 184, 166, 0.8);
+		color: #14b8a6;
 	}
 	
 	.card-action :global(a) {
@@ -84,10 +83,10 @@
 	}
 	
 	.card-action :global(a:hover) {
-		color: #5eead4;
+		color: #0d9488;
 	}
 	
 	.card-content {
-		color: rgba(255, 255, 255, 0.85);
+		color: #475569;
 	}
 </style>

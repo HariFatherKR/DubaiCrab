@@ -16,12 +16,16 @@
 	.app-layout {
 		min-height: 100vh;
 		display: flex;
+		/* Light mint/teal gradient background */
 		background: linear-gradient(
 			135deg,
-			#0f172a 0%,
-			#1e293b 50%,
-			#0f172a 100%
+			#e6f5f3 0%,
+			#d9ece9 25%,
+			#cce4e7 50%,
+			#c5e1ec 75%,
+			#d4eaf5 100%
 		);
+		background-attachment: fixed;
 	}
 	
 	.main-content {

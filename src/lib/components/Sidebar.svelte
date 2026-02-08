@@ -48,13 +48,15 @@
 	.sidebar {
 		width: 220px;
 		min-height: 100vh;
-		background: rgba(255, 255, 255, 0.08);
+		/* Light glassmorphism */
+		background: rgba(255, 255, 255, 0.5);
 		backdrop-filter: blur(20px);
 		-webkit-backdrop-filter: blur(20px);
-		border-right: 1px solid rgba(255, 255, 255, 0.1);
+		border-right: 1px solid rgba(255, 255, 255, 0.8);
 		display: flex;
 		flex-direction: column;
 		padding: 1.5rem 1rem;
+		box-shadow: 4px 0 24px rgba(0, 0, 0, 0.04);
 	}
 	
 	.sidebar-header {
@@ -95,21 +97,22 @@
 		padding: 0.875rem 1rem;
 		border-radius: 12px;
 		text-decoration: none;
-		color: rgba(255, 255, 255, 0.7);
+		color: #64748b;
 		font-size: 0.95rem;
 		font-weight: 500;
 		transition: all 0.2s ease;
 	}
 	
 	.nav-item:hover {
-		background: rgba(255, 255, 255, 0.1);
-		color: rgba(255, 255, 255, 0.95);
+		background: rgba(255, 255, 255, 0.6);
+		color: #1e293b;
 	}
 	
 	.nav-item.active {
-		background: linear-gradient(135deg, rgba(20, 184, 166, 0.3), rgba(6, 182, 212, 0.2));
-		color: #5eead4;
-		box-shadow: 0 0 20px rgba(20, 184, 166, 0.15);
+		background: linear-gradient(135deg, rgba(20, 184, 166, 0.15), rgba(6, 182, 212, 0.1));
+		color: #0d9488;
+		box-shadow: 0 2px 8px rgba(20, 184, 166, 0.15);
+		border: 1px solid rgba(20, 184, 166, 0.2);
 	}
 	
 	.nav-icon {
@@ -122,7 +125,7 @@
 	
 	.sidebar-footer {
 		padding-top: 1rem;
-		border-top: 1px solid rgba(255, 255, 255, 0.1);
+		border-top: 1px solid rgba(0, 0, 0, 0.06);
 	}
 	
 	.version-badge {
@@ -130,9 +133,9 @@
 		align-items: center;
 		justify-content: center;
 		padding: 0.5rem;
-		background: rgba(255, 255, 255, 0.05);
+		background: rgba(255, 255, 255, 0.5);
 		border-radius: 8px;
 		font-size: 0.8rem;
-		color: rgba(255, 255, 255, 0.5);
+		color: #94a3b8;
 	}
 </style>

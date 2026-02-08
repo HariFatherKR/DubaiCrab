@@ -49,20 +49,20 @@
 	
 	.welcome-text {
 		font-size: 0.9rem;
-		color: rgba(255, 255, 255, 0.6);
+		color: #64748b;
 		margin: 0;
 	}
 	
 	.page-title {
 		font-size: 1.75rem;
 		font-weight: 700;
-		color: rgba(255, 255, 255, 0.95);
+		color: #1e293b;
 		margin: 0;
 	}
 	
 	.page-subtitle {
 		font-size: 0.9rem;
-		color: rgba(255, 255, 255, 0.5);
+		color: #94a3b8;
 		margin: 0.25rem 0 0 0;
 	}
 	
@@ -76,18 +76,20 @@
 		width: 40px;
 		height: 40px;
 		border-radius: 12px;
-		background: rgba(255, 255, 255, 0.08);
-		border: 1px solid rgba(255, 255, 255, 0.1);
+		background: rgba(255, 255, 255, 0.6);
+		border: 1px solid rgba(255, 255, 255, 0.8);
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		cursor: pointer;
 		font-size: 1rem;
 		transition: all 0.2s ease;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 	}
 	
 	.icon-button:hover {
-		background: rgba(255, 255, 255, 0.15);
+		background: rgba(255, 255, 255, 0.8);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 	}
 	
 	.profile-section {
@@ -95,9 +97,10 @@
 		align-items: center;
 		gap: 0.75rem;
 		padding: 0.5rem 1rem 0.5rem 0.5rem;
-		background: rgba(255, 255, 255, 0.08);
-		border: 1px solid rgba(255, 255, 255, 0.1);
+		background: rgba(255, 255, 255, 0.6);
+		border: 1px solid rgba(255, 255, 255, 0.8);
 		border-radius: 50px;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 	}
 	
 	.profile-avatar {
@@ -114,7 +117,7 @@
 	.profile-name {
 		font-size: 0.9rem;
 		font-weight: 500;
-		color: rgba(255, 255, 255, 0.9);
+		color: #1e293b;
 	}
 	
 	@media (max-width: 768px) {

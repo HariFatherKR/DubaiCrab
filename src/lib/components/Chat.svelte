@@ -2,6 +2,9 @@
 	import { onMount } from 'svelte';
 	import { chat, isHealthy, type Message, DEFAULT_MODEL, SYSTEM_PROMPT } from '$lib/ollama';
 	import { incrementMessages, incrementChats, incrementEmails } from '$lib/stores/stats-store';
+	import QuickActions from './QuickActions.svelte';
+	import ReportTemplateModal from './ReportTemplateModal.svelte';
+	import type { QuickAction } from './QuickActions.svelte';
 	
 	interface ChatMessage {
 		id: string;
@@ -15,6 +18,8 @@
 	let isLoading = $state(false);
 	let isConnected = $state(false);
 	let chatContainer: HTMLDivElement;
+	let showReportModal = $state(false);
+	let textareaRef: HTMLTextAreaElement;
 	
 	onMount(async () => {
 		isConnected = await isHealthy();
@@ -126,6 +131,44 @@
 			handleSubmit(e);
 		}
 	}
+	
+	function handleQuickAction(action: QuickAction) {
+		if (action.prompt) {
+			// AI 응답으로 프롬프트 표시
+			const assistantMessage: ChatMessage = {
+				id: crypto.randomUUID(),
+				role: 'assistant',
+				content: action.prompt,
+				timestamp: new Date()
+			};
+			messages = [...messages, assistantMessage];
+			
+			// 입력창 포커스
+			setTimeout(() => {
+				textareaRef?.focus();
+			}, 100);
+		}
+	}
+	
+	function handleReportGenerate(content: string) {
+		// 보고서를 AI 응답으로 추가
+		const assistantMessage: ChatMessage = {
+			id: crypto.randomUUID(),
+			role: 'assistant',
+			content: content,
+			timestamp: new Date()
+		};
+		messages = [...messages, assistantMessage];
+		scrollToBottom();
+	}
+	
+	function openReportModal() {
+		showReportModal = true;
+	}
+	
+	function closeReportModal() {
+		showReportModal = false;
+	}
 </script>
 
 <div class="chat-wrapper">
@@ -156,35 +199,47 @@
 	</div>
 	
 	<form class="chat-input-container" onsubmit={handleSubmit}>
-		<div class="input-wrapper">
-			<textarea
-				bind:value={inputValue}
-				onkeydown={handleKeyDown}
-				placeholder={isConnected ? "메시지를 입력하세요..." : "Ollama 연결 대기 중..."}
-				disabled={!isConnected || isLoading}
-				rows="1"
-			></textarea>
-			<button type="submit" disabled={!inputValue.trim() || isLoading || !isConnected}>
-				{isLoading ? '⏳' : '📤'}
-			</button>
+		<div class="input-row">
+			<QuickActions 
+				onAction={handleQuickAction}
+				onOpenTemplates={openReportModal}
+			/>
+			<div class="input-wrapper">
+				<textarea
+					bind:this={textareaRef}
+					bind:value={inputValue}
+					onkeydown={handleKeyDown}
+					placeholder={isConnected ? "메시지를 입력하세요..." : "Ollama 연결 대기 중..."}
+					disabled={!isConnected || isLoading}
+					rows="1"
+				></textarea>
+				<button type="submit" disabled={!inputValue.trim() || isLoading || !isConnected}>
+					{isLoading ? '⏳' : '📤'}
+				</button>
+			</div>
 		</div>
 	</form>
 </div>
+
+<ReportTemplateModal 
+	isOpen={showReportModal}
+	onClose={closeReportModal}
+	onGenerate={handleReportGenerate}
+/>
 
 <style>
 	.chat-wrapper {
 		flex: 1;
 		display: flex;
 		flex-direction: column;
-		background: rgba(255, 255, 255, 0.08);
+		/* Light glassmorphism */
+		background: rgba(255, 255, 255, 0.6);
 		backdrop-filter: blur(20px);
 		-webkit-backdrop-filter: blur(20px);
-		border: 1px solid rgba(255, 255, 255, 0.1);
+		border: 1px solid rgba(255, 255, 255, 0.8);
 		border-radius: 20px;
 		overflow: hidden;
-		box-shadow: 
-			0 8px 32px rgba(0, 0, 0, 0.1),
-			inset 0 1px 0 rgba(255, 255, 255, 0.1);
+		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
 	}
 	
 	.chat-container {
@@ -221,7 +276,8 @@
 		width: 40px;
 		height: 40px;
 		border-radius: 12px;
-		background: rgba(255, 255, 255, 0.1);
+		background: rgba(255, 255, 255, 0.8);
+		border: 1px solid rgba(0, 0, 0, 0.06);
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -230,20 +286,22 @@
 	}
 	
 	.message.user .message-avatar {
-		background: linear-gradient(135deg, rgba(20, 184, 166, 0.3), rgba(6, 182, 212, 0.2));
+		background: linear-gradient(135deg, rgba(20, 184, 166, 0.15), rgba(6, 182, 212, 0.1));
+		border-color: rgba(20, 184, 166, 0.2);
 	}
 	
 	.message-content {
-		background: rgba(255, 255, 255, 0.06);
+		background: rgba(255, 255, 255, 0.7);
 		padding: 1rem 1.25rem;
 		border-radius: 16px;
-		border: 1px solid rgba(255, 255, 255, 0.08);
+		border: 1px solid rgba(0, 0, 0, 0.04);
 		max-width: 100%;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 	}
 	
 	.message.user .message-content {
-		background: linear-gradient(135deg, rgba(20, 184, 166, 0.2), rgba(6, 182, 212, 0.15));
-		border-color: rgba(20, 184, 166, 0.3);
+		background: linear-gradient(135deg, rgba(20, 184, 166, 0.12), rgba(6, 182, 212, 0.08));
+		border-color: rgba(20, 184, 166, 0.15);
 	}
 	
 	.message-content pre {
@@ -253,28 +311,35 @@
 		font-family: inherit;
 		font-size: 0.95rem;
 		line-height: 1.6;
-		color: rgba(255, 255, 255, 0.9);
+		color: #1e293b;
 	}
 	
 	.chat-input-container {
 		padding: 1rem 1.5rem 1.5rem;
-		background: rgba(0, 0, 0, 0.2);
-		border-top: 1px solid rgba(255, 255, 255, 0.08);
+		background: rgba(255, 255, 255, 0.4);
+		border-top: 1px solid rgba(0, 0, 0, 0.04);
+	}
+	
+	.input-row {
+		display: flex;
+		gap: 0.75rem;
+		align-items: flex-end;
 	}
 	
 	.input-wrapper {
+		flex: 1;
 		display: flex;
 		gap: 0.75rem;
-		background: rgba(255, 255, 255, 0.06);
-		border: 1px solid rgba(255, 255, 255, 0.1);
+		background: rgba(255, 255, 255, 0.8);
+		border: 1px solid rgba(0, 0, 0, 0.08);
 		border-radius: 16px;
 		padding: 0.5rem;
 		transition: all 0.2s ease;
 	}
 	
 	.input-wrapper:focus-within {
-		border-color: rgba(20, 184, 166, 0.5);
-		box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+		border-color: rgba(20, 184, 166, 0.4);
+		box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.08);
 	}
 	
 	.chat-input-container textarea {
@@ -283,7 +348,7 @@
 		border: none;
 		border-radius: 12px;
 		background: transparent;
-		color: rgba(255, 255, 255, 0.95);
+		color: #1e293b;
 		font-size: 0.95rem;
 		resize: none;
 		outline: none;
@@ -291,7 +356,7 @@
 	}
 	
 	.chat-input-container textarea::placeholder {
-		color: rgba(255, 255, 255, 0.4);
+		color: #94a3b8;
 	}
 	
 	.chat-input-container textarea:disabled {
@@ -310,11 +375,13 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		box-shadow: 0 4px 12px rgba(20, 184, 166, 0.25);
 	}
 	
 	.chat-input-container button:hover:not(:disabled) {
 		background: linear-gradient(135deg, #0d9488, #0f766e);
-		box-shadow: 0 0 20px rgba(20, 184, 166, 0.3);
+		box-shadow: 0 6px 20px rgba(20, 184, 166, 0.35);
+		transform: translateY(-1px);
 	}
 	
 	.chat-input-container button:disabled {
@@ -331,7 +398,7 @@
 	.typing-indicator span {
 		width: 8px;
 		height: 8px;
-		background: rgba(20, 184, 166, 0.6);
+		background: #14b8a6;
 		border-radius: 50%;
 		animation: bounce 1.4s infinite;
 	}

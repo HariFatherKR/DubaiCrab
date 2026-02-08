@@ -3,3 +3,5 @@ export { default as Sidebar } from './Sidebar.svelte';
 export { default as GlassCard } from './GlassCard.svelte';
 export { default as StatCard } from './StatCard.svelte';
 export { default as Header } from './Header.svelte';
+export { default as ReportTemplateModal } from './ReportTemplateModal.svelte';
+export { default as QuickActions } from './QuickActions.svelte';
