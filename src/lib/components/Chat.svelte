@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { chat, isHealthy, type Message, DEFAULT_MODEL, SYSTEM_PROMPT } from '$lib/ollama';
-	import { incrementMessages, incrementChats, incrementEmails } from '$lib/stores/stats-store';
+	import { incrementMessages, incrementChats, incrementEmails, incrementHwp } from '$lib/stores/stats-store';
 	import QuickActions from './QuickActions.svelte';
 	import ReportTemplateModal from './ReportTemplateModal.svelte';
 	import type { QuickAction } from './QuickActions.svelte';
@@ -11,6 +11,7 @@
 		role: 'user' | 'assistant';
 		content: string;
 		timestamp: Date;
+		file?: { name: string; type: string; size: number };
 	}
 	
 	let messages = $state<ChatMessage[]>([]);
@@ -20,6 +21,7 @@
 	let chatContainer: HTMLDivElement;
 	let showReportModal = $state(false);
 	let textareaRef: HTMLTextAreaElement;
+	let isDragging = $state(false);
 	
 	onMount(async () => {
 		isConnected = await isHealthy();
@@ -169,9 +171,138 @@
 	function closeReportModal() {
 		showReportModal = false;
 	}
+	
+	// Drag and Drop handlers
+	function handleDragEnter(e: DragEvent) {
+		e.preventDefault();
+		e.stopPropagation();
+		isDragging = true;
+	}
+	
+	function handleDragOver(e: DragEvent) {
+		e.preventDefault();
+		e.stopPropagation();
+		isDragging = true;
+	}
+	
+	function handleDragLeave(e: DragEvent) {
+		e.preventDefault();
+		e.stopPropagation();
+		isDragging = false;
+	}
+	
+	async function handleDrop(e: DragEvent) {
+		e.preventDefault();
+		e.stopPropagation();
+		isDragging = false;
+		
+		if (!isConnected || isLoading) return;
+		
+		const files = e.dataTransfer?.files;
+		if (!files || files.length === 0) return;
+		
+		const file = files[0];
+		const fileName = file.name;
+		const fileExt = fileName.split('.').pop()?.toLowerCase() || '';
+		
+		// 지원하는 파일 타입 체크
+		const supportedTypes = ['txt', 'md', 'csv', 'json', 'hwp', 'hwpx', 'xlsx', 'xls'];
+		if (!supportedTypes.includes(fileExt)) {
+			const errorMessage: ChatMessage = {
+				id: crypto.randomUUID(),
+				role: 'assistant',
+				content: `⚠️ 지원하지 않는 파일 형식입니다: .${fileExt}\n\n지원 형식: ${supportedTypes.join(', ')}`,
+				timestamp: new Date()
+			};
+			messages = [...messages, errorMessage];
+			return;
+		}
+		
+		// 파일 읽기
+		try {
+			let fileContent = '';
+			
+			if (['txt', 'md', 'csv', 'json'].includes(fileExt)) {
+				// 텍스트 파일 직접 읽기
+				fileContent = await file.text();
+			} else if (['hwp', 'hwpx'].includes(fileExt)) {
+				// HWP 파일은 서버/백엔드 처리 필요
+				fileContent = `[HWP 파일: ${fileName}]\n\n⚠️ HWP 파일 파싱은 현재 개발 중입니다.\n파일 크기: ${(file.size / 1024).toFixed(1)}KB`;
+				incrementHwp();
+			} else if (['xlsx', 'xls'].includes(fileExt)) {
+				// Excel 파일
+				fileContent = `[Excel 파일: ${fileName}]\n\n⚠️ Excel 파일 파싱은 현재 개발 중입니다.\n파일 크기: ${(file.size / 1024).toFixed(1)}KB`;
+			}
+			
+			// 사용자 메시지로 파일 내용 추가
+			const userMessage: ChatMessage = {
+				id: crypto.randomUUID(),
+				role: 'user',
+				content: `📎 파일: ${fileName}\n\n${fileContent.slice(0, 3000)}${fileContent.length > 3000 ? '\n\n...(내용 생략)' : ''}`,
+				timestamp: new Date(),
+				file: { name: fileName, type: fileExt, size: file.size }
+			};
+			
+			messages = [...messages, userMessage];
+			incrementMessages();
+			scrollToBottom();
+			
+			// 파일 분석 요청
+			isLoading = true;
+			
+			const assistantMessage: ChatMessage = {
+				id: crypto.randomUUID(),
+				role: 'assistant',
+				content: '',
+				timestamp: new Date()
+			};
+			messages = [...messages, assistantMessage];
+			
+			const apiMessages: Message[] = [
+				{ role: 'system', content: SYSTEM_PROMPT },
+				{ role: 'user', content: `다음 파일의 내용을 분석하고 요약해주세요:\n\n파일명: ${fileName}\n\n${fileContent.slice(0, 5000)}` }
+			];
+			
+			for await (const chunk of chat(DEFAULT_MODEL, apiMessages)) {
+				if (chunk.message?.content) {
+					assistantMessage.content += chunk.message.content;
+					messages = [...messages.slice(0, -1), { ...assistantMessage }];
+					scrollToBottom();
+				}
+			}
+		} catch (error) {
+			console.error('File read error:', error);
+			const errorMessage: ChatMessage = {
+				id: crypto.randomUUID(),
+				role: 'assistant',
+				content: `❌ 파일을 읽는 중 오류가 발생했습니다: ${error}`,
+				timestamp: new Date()
+			};
+			messages = [...messages, errorMessage];
+		} finally {
+			isLoading = false;
+			scrollToBottom();
+		}
+	}
 </script>
 
-<div class="chat-wrapper">
+<div 
+	class="chat-wrapper"
+	class:dragging={isDragging}
+	ondragenter={handleDragEnter}
+	ondragover={handleDragOver}
+	ondragleave={handleDragLeave}
+	ondrop={handleDrop}
+	role="region"
+	aria-label="채팅 영역"
+>
+	{#if isDragging}
+		<div class="drop-overlay">
+			<div class="drop-icon">📎</div>
+			<p>파일을 놓아주세요</p>
+			<span>txt, md, csv, json, hwp, xlsx 지원</span>
+		</div>
+	{/if}
 	<div class="chat-container" bind:this={chatContainer}>
 		{#each messages as message (message.id)}
 			<div class="message {message.role}">
@@ -240,6 +371,45 @@
 		border-radius: 20px;
 		overflow: hidden;
 		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+		position: relative;
+		transition: all 0.3s ease;
+	}
+	
+	.chat-wrapper.dragging {
+		border-color: rgba(212, 165, 116, 0.6);
+		box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.2), 0 8px 32px rgba(0, 0, 0, 0.2);
+	}
+	
+	.drop-overlay {
+		position: absolute;
+		inset: 0;
+		background: rgba(45, 90, 63, 0.95);
+		backdrop-filter: blur(10px);
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		z-index: 100;
+		border-radius: 20px;
+		animation: fadeIn 0.2s ease-out;
+	}
+	
+	.drop-overlay .drop-icon {
+		font-size: 4rem;
+		margin-bottom: 1rem;
+		animation: bounce 1s infinite;
+	}
+	
+	.drop-overlay p {
+		font-size: 1.5rem;
+		font-weight: 600;
+		color: #FFF8E1;
+		margin: 0 0 0.5rem;
+	}
+	
+	.drop-overlay span {
+		font-size: 0.9rem;
+		color: #BCAAA4;
 	}
 	
 	.chat-container {

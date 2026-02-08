@@ -2,7 +2,9 @@
 
 > 한국 사무직을 위한 로컬 AI 비서
 
+[![Website](https://img.shields.io/badge/Website-DubaiCrab.ai-D4A574)](https://dubaicrab.ai)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub](https://img.shields.io/github/stars/HariFatherKR/DubaiCrab?style=social)](https://github.com/HariFatherKR/DubaiCrab)
 
 ## ✨ 특징
 

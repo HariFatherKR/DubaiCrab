@@ -1,13 +1,15 @@
 [package]
-name = "openklaw"
+name = "dubai-crab"
 version = "0.1.0"
 description = "한국 사무직을 위한 로컬 AI 비서"
 authors = ["HariFatherKR"]
 edition = "2021"
 license = "MIT"
+homepage = "https://dubaicrab.ai"
+repository = "https://github.com/HariFatherKR/DubaiCrab"
 
 [lib]
-name = "openklaw_lib"
+name = "dubai_crab_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
