@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { loadStats, type Stats } from '$lib/stores/stats-store';
+	import Header from '$lib/components/Header.svelte';
+	import GlassCard from '$lib/components/GlassCard.svelte';
+	import StatCard from '$lib/components/StatCard.svelte';
 	
 	// PM 의사결정 데이터
 	const integrationTools = [
@@ -19,7 +22,7 @@
 		{ id: 'F05', name: '이메일 작성', priority: 'P0', status: 'Done', effort: 0.5 },
 		{ id: 'F06', name: '대화 저장', priority: 'P0', status: 'Done', effort: 0.5 },
 		{ id: 'F07', name: '시스템 트레이', priority: 'P0', status: 'Done', effort: 0.5 },
-		{ id: 'F08', name: '엑셀/CSV 분석', priority: 'P1', status: 'Planned', effort: 1 },
+		{ id: 'F08', name: '엑셀/CSV 분석', priority: 'P1', status: 'Done', effort: 1 },
 		{ id: 'F09', name: '보고서 템플릿', priority: 'P1', status: 'Planned', effort: 0.5 },
 		{ id: 'F10', name: '빠른 작업 버튼', priority: 'P1', status: 'Planned', effort: 0.5 },
 		{ id: 'F11', name: '전역 단축키', priority: 'P1', status: 'Planned', effort: 0.5 },
@@ -27,6 +30,7 @@
 	];
 	
 	const decisions = [
+		{ date: '2026-02-08', decision: '엑셀/CSV 분석 구현 완료', reason: 'SheetJS + PapaParse 채택' },
 		{ date: '2026-02-07', decision: 'HWP P0 확정', reason: '유일한 차별점, 경쟁사 전무' },
 		{ date: '2026-02-07', decision: '이메일 P0 확정', reason: '높은 수요, 낮은 복잡도' },
 		{ date: '2026-02-07', decision: '엑셀 P1로 조정', reason: 'MVP 범위 축소, Phase 2' },
@@ -46,7 +50,6 @@
 	});
 	
 	onMount(() => {
-		// localStorage에서 통계 로드
 		stats = loadStats();
 	});
 	
@@ -55,429 +58,346 @@
 	const totalCount = features.length;
 	const progressPercent = $derived(Math.round((doneCount / totalCount) * 100));
 	
-	function getPriorityColor(priority: string): string {
+	function getPriorityClass(priority: string): string {
 		switch (priority) {
-			case 'P0': return 'bg-red-500';
-			case 'P1': return 'bg-yellow-500';
-			case 'P2': return 'bg-blue-500';
-			case 'P3': return 'bg-gray-500';
-			default: return 'bg-gray-500';
+			case 'P0': return 'priority-p0';
+			case 'P1': return 'priority-p1';
+			case 'P2': return 'priority-p2';
+			case 'P3': return 'priority-p3';
+			default: return 'priority-p3';
 		}
 	}
 	
-	function getStatusColor(status: string): string {
+	function getStatusClass(status: string): string {
 		switch (status) {
-			case 'Done': return 'text-green-400';
-			case 'Planned': return 'text-yellow-400';
-			case 'Future': return 'text-blue-400';
-			case 'Blocked': return 'text-red-400';
-			default: return 'text-gray-400';
+			case 'Done': return 'status-done';
+			case 'Planned': return 'status-planned';
+			case 'Future': return 'status-future';
+			case 'Blocked': return 'status-blocked';
+			default: return '';
 		}
 	}
 	
-	function getDifficultyWidth(difficulty: string): string {
+	function getDifficultyPercent(difficulty: string): number {
 		switch (difficulty) {
-			case 'Low': return 'w-1/4';
-			case 'Medium': return 'w-2/4';
-			case 'High': return 'w-3/4';
-			case 'Critical': return 'w-full';
-			default: return 'w-1/4';
+			case 'Low': return 25;
+			case 'Medium': return 50;
+			case 'High': return 75;
+			case 'Critical': return 100;
+			default: return 25;
 		}
 	}
 </script>
 
 <svelte:head>
-	<title>OpenKlaw - 대시보드</title>
+	<title>OpenKlaw - Dashboard</title>
 </svelte:head>
 
-<main class="dashboard">
-	<header class="dashboard-header">
-		<div class="header-left">
-			<a href="/" class="back-link">← 채팅으로</a>
-		</div>
-		<div class="header-center">
-			<span class="text-2xl">📊</span>
-			<h1>PM 대시보드</h1>
-		</div>
-		<div class="header-right">
-			<span class="version">v0.1.0</span>
-		</div>
-	</header>
-	
-	<div class="dashboard-content">
-		<!-- 프로젝트 진행 상황 -->
-		<section class="card progress-card">
-			<h2>📈 프로젝트 진행 상황</h2>
+<Header title="Dashboard" subtitle="프로젝트 현황 및 통계" userName="PM" />
+
+<div class="dashboard-content">
+	<!-- 프로젝트 진행 상황 -->
+	<GlassCard title="프로젝트 진행 상황" icon="📈" fullWidth>
+		<div class="progress-section">
 			<div class="progress-bar-container">
 				<div class="progress-bar" style="width: {progressPercent}%"></div>
 			</div>
-			<div class="progress-text">
-				<span>{doneCount} / {totalCount} 기능 완료</span>
+			<div class="progress-info">
+				<span class="progress-text">{doneCount} / {totalCount} 기능 완료</span>
 				<span class="progress-percent">{progressPercent}%</span>
 			</div>
-			<div class="milestone">
-				<span class="milestone-label">현재 Phase:</span>
-				<span class="milestone-value">Phase 6 - 설치 패키지</span>
+			<div class="milestone-badge">
+				<span class="milestone-label">현재 Phase</span>
+				<span class="milestone-value">Phase 10 - P1 기능 구현</span>
 			</div>
-		</section>
-		
-		<!-- 사용 통계 -->
-		<section class="card stats-card">
-			<h2>📊 사용 통계</h2>
-			<div class="stats-grid">
-				<div class="stat-item">
-					<span class="stat-value">{stats.totalChats}</span>
-					<span class="stat-label">총 대화 수</span>
-				</div>
-				<div class="stat-item">
-					<span class="stat-value">{stats.totalMessages}</span>
-					<span class="stat-label">총 메시지</span>
-				</div>
-				<div class="stat-item">
-					<span class="stat-value">{stats.hwpProcessed}</span>
-					<span class="stat-label">HWP 처리</span>
-				</div>
-				<div class="stat-item">
-					<span class="stat-value">{stats.emailsGenerated}</span>
-					<span class="stat-label">이메일 생성</span>
-				</div>
-			</div>
-		</section>
-		
-		<!-- 연동 도구 우선순위 -->
-		<section class="card">
-			<h2>🔌 연동 도구 우선순위</h2>
-			<div class="tools-table">
-				<div class="table-header">
-					<span>도구</span>
-					<span>우선순위</span>
-					<span>활용도</span>
-					<span>난이도</span>
-					<span>상태</span>
-				</div>
-				{#each integrationTools as tool}
-					<div class="table-row">
-						<span class="tool-name">{tool.name}</span>
-						<span class="tool-priority">
-							<span class="priority-badge {getPriorityColor(tool.priority)}">{tool.priority}</span>
-						</span>
-						<span class="tool-usage">
-							<div class="usage-bar-bg">
-								<div class="usage-bar" style="width: {tool.usage}%"></div>
-							</div>
-							<span class="usage-text">{tool.usage}%</span>
-						</span>
-						<span class="tool-difficulty">
-							<div class="difficulty-bar-bg">
-								<div class="difficulty-bar {getDifficultyWidth(tool.difficulty)}"></div>
-							</div>
-						</span>
-						<span class="tool-status {getStatusColor(tool.status)}">{tool.status}</span>
-					</div>
-				{/each}
-			</div>
-		</section>
-		
-		<!-- 기능 목록 -->
-		<section class="card">
-			<h2>✅ 기능 목록</h2>
-			<div class="features-list">
-				{#each features as feature}
-					<div class="feature-item">
-						<span class="feature-id">{feature.id}</span>
-						<span class="feature-name">{feature.name}</span>
-						<span class="priority-badge {getPriorityColor(feature.priority)}">{feature.priority}</span>
-						<span class="feature-effort">{feature.effort}d</span>
-						<span class="feature-status {getStatusColor(feature.status)}">
-							{#if feature.status === 'Done'}✓{:else if feature.status === 'Planned'}○{:else}◇{/if}
-						</span>
-					</div>
-				{/each}
-			</div>
-		</section>
-		
-		<!-- PM 의사결정 로그 -->
-		<section class="card decisions-card">
-			<h2>📝 PM 의사결정 로그</h2>
-			<div class="decisions-list">
-				{#each decisions as decision}
-					<div class="decision-item">
-						<span class="decision-date">{decision.date}</span>
-						<span class="decision-text">{decision.decision}</span>
-						<span class="decision-reason">{decision.reason}</span>
-					</div>
-				{/each}
-			</div>
-		</section>
-		
-		<!-- 우선순위 매트릭스 시각화 -->
-		<section class="card matrix-card">
-			<h2>📊 우선순위 매트릭스</h2>
-			<div class="matrix">
-				<div class="matrix-y-label">수요 ↑</div>
-				<div class="matrix-x-label">구현 용이성 →</div>
-				<div class="matrix-grid">
-					<div class="matrix-quadrant q1">
-						<span class="quadrant-label">높은 수요 / 쉬운 구현</span>
-						<div class="matrix-item p0">이메일</div>
-						<div class="matrix-item p0">HWP</div>
-					</div>
-					<div class="matrix-quadrant q2">
-						<span class="quadrant-label">높은 수요 / 어려운 구현</span>
-						<div class="matrix-item p1">엑셀</div>
-					</div>
-					<div class="matrix-quadrant q3">
-						<span class="quadrant-label">낮은 수요 / 쉬운 구현</span>
-					</div>
-					<div class="matrix-quadrant q4">
-						<span class="quadrant-label">낮은 수요 / 어려운 구현</span>
-						<div class="matrix-item p2">캘린더</div>
-						<div class="matrix-item p3">카카오톡</div>
-					</div>
-				</div>
-			</div>
-		</section>
+		</div>
+	</GlassCard>
+	
+	<!-- 사용 통계 카드 그리드 -->
+	<div class="stats-grid">
+		<StatCard icon="💬" label="총 대화" value={stats.totalChats} iconBg="bg-teal" />
+		<StatCard icon="📝" label="메시지" value={stats.totalMessages} iconBg="bg-blue" />
+		<StatCard icon="📄" label="HWP 처리" value={stats.hwpProcessed} iconBg="bg-purple" />
+		<StatCard icon="📧" label="이메일 생성" value={stats.emailsGenerated} iconBg="bg-amber" />
 	</div>
-</main>
+	
+	<!-- 연동 도구 우선순위 -->
+	<GlassCard title="연동 도구 우선순위" icon="🔌">
+		{#snippet headerAction()}
+			<a href="#all">View all</a>
+		{/snippet}
+		
+		<table class="glass-table">
+			<thead>
+				<tr>
+					<th>도구</th>
+					<th>우선순위</th>
+					<th>활용도</th>
+					<th>난이도</th>
+					<th>상태</th>
+				</tr>
+			</thead>
+			<tbody>
+				{#each integrationTools as tool}
+					<tr>
+						<td class="tool-name">{tool.name}</td>
+						<td>
+							<span class="priority-badge {getPriorityClass(tool.priority)}">{tool.priority}</span>
+						</td>
+						<td>
+							<div class="bar-container">
+								<div class="bar usage-bar" style="width: {tool.usage}%"></div>
+							</div>
+						</td>
+						<td>
+							<div class="bar-container">
+								<div class="bar difficulty-bar" style="width: {getDifficultyPercent(tool.difficulty)}%"></div>
+							</div>
+						</td>
+						<td class={getStatusClass(tool.status)}>{tool.status}</td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+	</GlassCard>
+	
+	<!-- 기능 목록 -->
+	<GlassCard title="기능 목록" icon="✅">
+		<div class="features-list">
+			{#each features as feature}
+				<div class="feature-item">
+					<span class="feature-id">{feature.id}</span>
+					<span class="feature-name">{feature.name}</span>
+					<span class="priority-badge small {getPriorityClass(feature.priority)}">{feature.priority}</span>
+					<span class="feature-effort">{feature.effort}d</span>
+					<span class="feature-status {getStatusClass(feature.status)}">
+						{#if feature.status === 'Done'}✓{:else if feature.status === 'Planned'}○{:else}◇{/if}
+					</span>
+				</div>
+			{/each}
+		</div>
+	</GlassCard>
+	
+	<!-- PM 의사결정 로그 -->
+	<GlassCard title="PM 의사결정 로그" icon="📝" fullWidth>
+		<div class="decisions-list">
+			{#each decisions as decision}
+				<div class="decision-item">
+					<span class="decision-date">{decision.date}</span>
+					<span class="decision-text">{decision.decision}</span>
+					<span class="decision-reason">{decision.reason}</span>
+				</div>
+			{/each}
+		</div>
+	</GlassCard>
+	
+	<!-- CTA 카드 -->
+	<div class="cta-card">
+		<div class="cta-content">
+			<div class="cta-decoration">
+				<div class="cta-icon">🦞</div>
+			</div>
+			<div class="cta-text">
+				<span class="cta-label">Don't forget!</span>
+				<h3>채팅으로 테스트하기</h3>
+			</div>
+		</div>
+		<a href="/" class="cta-button">Go to Chat</a>
+	</div>
+</div>
 
 <style>
-	.dashboard {
-		min-height: 100vh;
-		background: var(--color-bg);
-		color: var(--color-text);
-	}
-	
-	.dashboard-header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: 1rem 2rem;
-		background: var(--color-surface);
-		border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-	}
-	
-	.header-center {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
-	
-	.header-center h1 {
-		font-size: 1.25rem;
-		font-weight: 600;
-	}
-	
-	.back-link {
-		color: var(--color-primary);
-		text-decoration: none;
-		font-size: 0.9rem;
-	}
-	
-	.back-link:hover {
-		text-decoration: underline;
-	}
-	
-	.version {
-		color: var(--color-text-muted);
-		font-size: 0.8rem;
-	}
-	
 	.dashboard-content {
-		max-width: 1200px;
-		margin: 0 auto;
-		padding: 2rem;
+		padding: 0 2rem 2rem;
 		display: grid;
-		gap: 1.5rem;
 		grid-template-columns: repeat(2, 1fr);
+		gap: 1.5rem;
+		max-width: 1400px;
 	}
 	
-	.card {
-		background: var(--color-surface);
-		border-radius: 1rem;
-		padding: 1.5rem;
+	/* Stats Grid */
+	.stats-grid {
+		grid-column: 1 / -1;
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 1rem;
 	}
 	
-	.card h2 {
-		font-size: 1.1rem;
-		margin-bottom: 1rem;
-		color: var(--color-text);
+	/* Progress Section */
+	.progress-section {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
 	}
 	
-	.progress-card, .decisions-card, .matrix-card {
-		grid-column: span 2;
-	}
-	
-	/* 진행 바 */
 	.progress-bar-container {
-		height: 1.5rem;
+		height: 12px;
 		background: rgba(255, 255, 255, 0.1);
-		border-radius: 0.75rem;
+		border-radius: 6px;
 		overflow: hidden;
-		margin-bottom: 0.75rem;
 	}
 	
 	.progress-bar {
 		height: 100%;
-		background: linear-gradient(90deg, var(--color-primary), #22c55e);
-		border-radius: 0.75rem;
+		background: linear-gradient(90deg, #14b8a6, #06b6d4);
+		border-radius: 6px;
 		transition: width 0.5s ease;
 	}
 	
-	.progress-text {
+	.progress-info {
 		display: flex;
 		justify-content: space-between;
+		align-items: center;
+	}
+	
+	.progress-text {
 		font-size: 0.9rem;
-		color: var(--color-text-muted);
+		color: rgba(255, 255, 255, 0.6);
 	}
 	
 	.progress-percent {
-		font-weight: 600;
-		color: var(--color-primary);
+		font-size: 1.25rem;
+		font-weight: 700;
+		color: #5eead4;
 	}
 	
-	.milestone {
-		margin-top: 1rem;
-		padding-top: 1rem;
-		border-top: 1px solid rgba(255, 255, 255, 0.1);
+	.milestone-badge {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		padding: 0.75rem 1rem;
+		background: rgba(20, 184, 166, 0.1);
+		border: 1px solid rgba(20, 184, 166, 0.2);
+		border-radius: 12px;
+		width: fit-content;
 	}
 	
 	.milestone-label {
-		color: var(--color-text-muted);
-		margin-right: 0.5rem;
+		font-size: 0.8rem;
+		color: rgba(255, 255, 255, 0.5);
 	}
 	
 	.milestone-value {
-		color: var(--color-primary);
-		font-weight: 500;
+		font-size: 0.9rem;
+		font-weight: 600;
+		color: #5eead4;
 	}
 	
-	/* 통계 그리드 */
-	.stats-grid {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		gap: 1rem;
+	/* Table styles */
+	.glass-table {
+		width: 100%;
+		border-collapse: separate;
+		border-spacing: 0 0.5rem;
 	}
 	
-	.stat-item {
-		text-align: center;
-		padding: 1rem;
-		background: rgba(255, 255, 255, 0.05);
-		border-radius: 0.75rem;
-	}
-	
-	.stat-value {
-		display: block;
-		font-size: 2rem;
-		font-weight: 700;
-		color: var(--color-primary);
-	}
-	
-	.stat-label {
-		font-size: 0.85rem;
-		color: var(--color-text-muted);
-	}
-	
-	/* 도구 테이블 */
-	.tools-table {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-	}
-	
-	.table-header, .table-row {
-		display: grid;
-		grid-template-columns: 1fr 0.8fr 1.5fr 1fr 0.8fr;
-		gap: 0.75rem;
-		align-items: center;
-		padding: 0.75rem;
-	}
-	
-	.table-header {
-		font-size: 0.8rem;
-		color: var(--color-text-muted);
+	.glass-table th {
+		font-size: 0.7rem;
+		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
+		color: rgba(255, 255, 255, 0.5);
+		text-align: left;
+		padding: 0.5rem 1rem;
 	}
 	
-	.table-row {
+	.glass-table td {
 		background: rgba(255, 255, 255, 0.03);
-		border-radius: 0.5rem;
+		padding: 0.875rem 1rem;
+		font-size: 0.9rem;
+	}
+	
+	.glass-table tr td:first-child {
+		border-radius: 12px 0 0 12px;
+	}
+	
+	.glass-table tr td:last-child {
+		border-radius: 0 12px 12px 0;
 	}
 	
 	.tool-name {
 		font-weight: 500;
 	}
 	
+	/* Priority badges */
 	.priority-badge {
 		display: inline-block;
-		padding: 0.2rem 0.5rem;
-		border-radius: 0.25rem;
+		padding: 0.25rem 0.5rem;
+		border-radius: 6px;
 		font-size: 0.75rem;
 		font-weight: 600;
-		color: white;
 	}
 	
-	.tool-usage {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
+	.priority-badge.small {
+		padding: 0.15rem 0.4rem;
+		font-size: 0.7rem;
 	}
 	
-	.usage-bar-bg, .difficulty-bar-bg {
-		flex: 1;
-		height: 0.5rem;
+	.priority-p0 { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+	.priority-p1 { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+	.priority-p2 { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+	.priority-p3 { background: rgba(107, 114, 128, 0.2); color: #9ca3af; }
+	
+	/* Status colors */
+	.status-done { color: #4ade80; }
+	.status-planned { color: #fbbf24; }
+	.status-future { color: #60a5fa; }
+	.status-blocked { color: #f87171; }
+	
+	/* Bar containers */
+	.bar-container {
+		height: 6px;
 		background: rgba(255, 255, 255, 0.1);
-		border-radius: 0.25rem;
+		border-radius: 3px;
 		overflow: hidden;
+		min-width: 60px;
+	}
+	
+	.bar {
+		height: 100%;
+		border-radius: 3px;
 	}
 	
 	.usage-bar {
-		height: 100%;
-		background: var(--color-primary);
-		border-radius: 0.25rem;
-	}
-	
-	.usage-text {
-		font-size: 0.8rem;
-		color: var(--color-text-muted);
-		min-width: 35px;
+		background: linear-gradient(90deg, #14b8a6, #06b6d4);
 	}
 	
 	.difficulty-bar {
-		height: 100%;
-		background: linear-gradient(90deg, #22c55e, #eab308, #ef4444);
-		border-radius: 0.25rem;
+		background: linear-gradient(90deg, #4ade80, #fbbf24, #f87171);
 	}
 	
-	/* 기능 목록 */
+	/* Features list */
 	.features-list {
 		display: flex;
 		flex-direction: column;
-		gap: 0.4rem;
-		max-height: 400px;
+		gap: 0.5rem;
+		max-height: 350px;
 		overflow-y: auto;
 	}
 	
 	.feature-item {
 		display: grid;
 		grid-template-columns: 3rem 1fr auto 2.5rem 1.5rem;
-		gap: 0.5rem;
+		gap: 0.75rem;
 		align-items: center;
-		padding: 0.5rem 0.75rem;
+		padding: 0.625rem 0.875rem;
 		background: rgba(255, 255, 255, 0.03);
-		border-radius: 0.4rem;
-		font-size: 0.9rem;
+		border-radius: 10px;
+		font-size: 0.875rem;
 	}
 	
 	.feature-id {
-		font-family: monospace;
-		color: var(--color-text-muted);
-		font-size: 0.8rem;
+		font-family: 'SF Mono', Monaco, monospace;
+		color: rgba(255, 255, 255, 0.4);
+		font-size: 0.75rem;
+	}
+	
+	.feature-name {
+		color: rgba(255, 255, 255, 0.85);
 	}
 	
 	.feature-effort {
-		color: var(--color-text-muted);
-		font-size: 0.8rem;
+		color: rgba(255, 255, 255, 0.4);
+		font-size: 0.75rem;
 		text-align: right;
 	}
 	
@@ -486,150 +406,135 @@
 		text-align: center;
 	}
 	
-	/* 의사결정 목록 */
+	/* Decisions list */
 	.decisions-list {
-		display: flex;
-		flex-direction: column;
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 		gap: 0.75rem;
 	}
 	
 	.decision-item {
-		display: grid;
-		grid-template-columns: 6rem 1fr 1fr;
-		gap: 1rem;
-		padding: 0.75rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		padding: 1rem;
 		background: rgba(255, 255, 255, 0.03);
-		border-radius: 0.5rem;
-		font-size: 0.9rem;
+		border-radius: 12px;
 	}
 	
 	.decision-date {
-		color: var(--color-text-muted);
-		font-family: monospace;
-		font-size: 0.8rem;
+		font-family: 'SF Mono', Monaco, monospace;
+		font-size: 0.75rem;
+		color: rgba(255, 255, 255, 0.4);
 	}
 	
 	.decision-text {
 		font-weight: 500;
+		color: rgba(255, 255, 255, 0.9);
+		font-size: 0.9rem;
 	}
 	
 	.decision-reason {
-		color: var(--color-text-muted);
-		font-size: 0.85rem;
+		font-size: 0.8rem;
+		color: rgba(255, 255, 255, 0.5);
 	}
 	
-	/* 매트릭스 */
-	.matrix {
+	/* CTA Card */
+	.cta-card {
+		grid-column: 1 / -1;
+		background: linear-gradient(135deg, rgba(20, 184, 166, 0.2), rgba(6, 182, 212, 0.15));
+		backdrop-filter: blur(20px);
+		-webkit-backdrop-filter: blur(20px);
+		border: 1px solid rgba(20, 184, 166, 0.3);
+		border-radius: 20px;
+		padding: 1.5rem 2rem;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		box-shadow: 0 8px 32px rgba(20, 184, 166, 0.1);
+	}
+	
+	.cta-content {
+		display: flex;
+		align-items: center;
+		gap: 1.5rem;
+	}
+	
+	.cta-decoration {
 		position: relative;
-		padding: 2rem 0 0 2rem;
 	}
 	
-	.matrix-y-label {
-		position: absolute;
-		left: 0;
-		top: 50%;
-		transform: rotate(-90deg) translateX(-50%);
-		font-size: 0.8rem;
-		color: var(--color-text-muted);
+	.cta-icon {
+		font-size: 3rem;
+		filter: drop-shadow(0 0 20px rgba(20, 184, 166, 0.5));
 	}
 	
-	.matrix-x-label {
-		text-align: center;
-		font-size: 0.8rem;
-		color: var(--color-text-muted);
-		margin-top: 0.5rem;
-	}
-	
-	.matrix-grid {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		grid-template-rows: 1fr 1fr;
-		gap: 0.5rem;
-		min-height: 200px;
-	}
-	
-	.matrix-quadrant {
-		background: rgba(255, 255, 255, 0.03);
-		border-radius: 0.5rem;
-		padding: 1rem;
+	.cta-text {
 		display: flex;
 		flex-direction: column;
-		gap: 0.5rem;
+		gap: 0.25rem;
 	}
 	
-	.quadrant-label {
-		font-size: 0.7rem;
-		color: var(--color-text-muted);
-		margin-bottom: 0.5rem;
-	}
-	
-	.matrix-item {
-		display: inline-block;
-		padding: 0.25rem 0.5rem;
-		border-radius: 0.25rem;
+	.cta-label {
 		font-size: 0.8rem;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		color: rgba(255, 255, 255, 0.5);
+	}
+	
+	.cta-text h3 {
+		font-size: 1.25rem;
+		font-weight: 600;
+		color: rgba(255, 255, 255, 0.95);
+		margin: 0;
+	}
+	
+	.cta-button {
+		padding: 0.75rem 1.5rem;
+		background: rgba(255, 255, 255, 0.15);
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		border-radius: 12px;
+		color: white;
+		text-decoration: none;
 		font-weight: 500;
+		font-size: 0.9rem;
+		transition: all 0.2s ease;
 	}
 	
-	.matrix-item.p0 {
-		background: rgba(239, 68, 68, 0.2);
-		color: #ef4444;
+	.cta-button:hover {
+		background: rgba(255, 255, 255, 0.25);
+		transform: translateY(-2px);
 	}
 	
-	.matrix-item.p1 {
-		background: rgba(234, 179, 8, 0.2);
-		color: #eab308;
+	/* Responsive */
+	@media (max-width: 1024px) {
+		.stats-grid {
+			grid-template-columns: repeat(2, 1fr);
+		}
 	}
 	
-	.matrix-item.p2 {
-		background: rgba(59, 130, 246, 0.2);
-		color: #3b82f6;
-	}
-	
-	.matrix-item.p3 {
-		background: rgba(107, 114, 128, 0.2);
-		color: #6b7280;
-	}
-	
-	/* 색상 유틸리티 */
-	.bg-red-500 { background-color: #ef4444; }
-	.bg-yellow-500 { background-color: #eab308; }
-	.bg-blue-500 { background-color: #3b82f6; }
-	.bg-gray-500 { background-color: #6b7280; }
-	
-	.text-green-400 { color: #4ade80; }
-	.text-yellow-400 { color: #facc15; }
-	.text-blue-400 { color: #60a5fa; }
-	.text-red-400 { color: #f87171; }
-	.text-gray-400 { color: #9ca3af; }
-	
-	.w-1\/4 { width: 25%; }
-	.w-2\/4 { width: 50%; }
-	.w-3\/4 { width: 75%; }
-	.w-full { width: 100%; }
-	
-	/* 반응형 */
 	@media (max-width: 768px) {
 		.dashboard-content {
 			grid-template-columns: 1fr;
-			padding: 1rem;
+			padding: 0 1rem 1rem;
 		}
 		
-		.progress-card, .decisions-card, .matrix-card {
-			grid-column: span 1;
+		.stats-grid {
+			grid-template-columns: 1fr 1fr;
 		}
 		
-		.table-header, .table-row {
-			grid-template-columns: 1fr 0.6fr 1fr 0.6fr;
-		}
-		
-		.tool-usage {
-			display: none;
-		}
-		
-		.decision-item {
+		.decisions-list {
 			grid-template-columns: 1fr;
-			gap: 0.25rem;
+		}
+		
+		.cta-card {
+			flex-direction: column;
+			gap: 1rem;
+			text-align: center;
+		}
+		
+		.cta-content {
+			flex-direction: column;
 		}
 	}
 </style>
