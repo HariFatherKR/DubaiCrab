@@ -38,7 +38,7 @@ type Config struct {
 func DefaultConfig() *Config {
 	return &Config{
 		AppName:          "Dubai Crab",
-		Version:          "0.1.0",
+		Version:          "0.2.0",
 		OllamaURL:        "http://localhost:11434",
 		OllamaModel:      "qwen2.5:0.5b",
 		KakaoEnabled:     true,

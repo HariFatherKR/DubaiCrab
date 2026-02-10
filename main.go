@@ -84,7 +84,7 @@ func main() {
 			},
 			About: &mac.AboutInfo{
 				Title:   "Dubai Crab",
-				Message: "한국 사무직을 위한 로컬 AI 비서\n\n버전 0.1.0",
+				Message: "한국 사무직을 위한 로컬 AI 비서\n\n버전 0.2.0",
 			},
 			WebviewIsTransparent: false,
 			WindowIsTranslucent:  false,
