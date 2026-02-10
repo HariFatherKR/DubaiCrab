@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --crab-dark: #3E2723;
+  --crab-medium: #4E342E;
+  --crab-light: #5D4037;
+  --crab-accent: #8D6E63;
+  --crab-text: #EFEBE9;
+  --crab-muted: #BCAAA4;
+  --crab-orange: #FF8A65;
+  --crab-gold: #FFD54F;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background: linear-gradient(
+    135deg,
+    var(--crab-dark) 0%,
+    var(--crab-medium) 25%,
+    var(--crab-light) 50%,
+    var(--crab-medium) 75%,
+    var(--crab-dark) 100%
+  );
+  color: var(--crab-text);
+}
+
+#app {
+  height: 100%;
+  display: flex;
+}
+
+/* Glass card effect */
+.glass {
+  background: rgba(78, 52, 46, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(239, 235, 233, 0.1);
+  border-radius: 12px;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--crab-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--crab-accent);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--crab-muted);
+}
+
+/* Button styles */
+.btn {
+  @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+}
+
+.btn-primary {
+  @apply bg-crab-orange text-white hover:bg-opacity-80;
+}
+
+.btn-secondary {
+  @apply bg-crab-accent text-white hover:bg-opacity-80;
+}
+
+.btn-ghost {
+  @apply bg-transparent text-crab-text hover:bg-crab-light hover:bg-opacity-50;
+}
+
+/* Input styles */
+input, textarea {
+  @apply bg-crab-dark border border-crab-accent rounded-lg px-3 py-2 text-crab-text;
+  @apply focus:outline-none focus:ring-2 focus:ring-crab-orange focus:border-transparent;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
