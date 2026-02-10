@@ -241,10 +241,90 @@ func (t *HWPParserTool) Execute(ctx context.Context, params map[string]interface
 	return string(output), nil
 }
 
+// HWPToPDFTool converts HWP files to PDF
+type HWPToPDFTool struct{}
+
+func (t *HWPToPDFTool) Name() string        { return "hwp_to_pdf" }
+func (t *HWPToPDFTool) Description() string { return "HWP 파일을 PDF로 변환합니다" }
+func (t *HWPToPDFTool) Schema() map[string]interface{} {
+	return map[string]interface{}{
+		"type": "object",
+		"properties": map[string]interface{}{
+			"input_path": map[string]interface{}{
+				"type":        "string",
+				"description": "입력 HWP 파일 경로",
+			},
+			"output_path": map[string]interface{}{
+				"type":        "string",
+				"description": "출력 PDF 파일 경로",
+			},
+		},
+		"required": []string{"input_path", "output_path"},
+	}
+}
+
+func (t *HWPToPDFTool) Execute(ctx context.Context, params map[string]interface{}) (string, error) {
+	inputPath, _ := params["input_path"].(string)
+	outputPath, _ := params["output_path"].(string)
+
+	if inputPath == "" || outputPath == "" {
+		return "", fmt.Errorf("입력 경로와 출력 경로가 필요합니다")
+	}
+
+	// Expand home directory
+	if strings.HasPrefix(inputPath, "~") {
+		home, _ := os.UserHomeDir()
+		inputPath = filepath.Join(home, inputPath[1:])
+	}
+	if strings.HasPrefix(outputPath, "~") {
+		home, _ := os.UserHomeDir()
+		outputPath = filepath.Join(home, outputPath[1:])
+	}
+
+	// Check input file exists
+	if _, err := os.Stat(inputPath); os.IsNotExist(err) {
+		return "", fmt.Errorf("입력 파일이 존재하지 않습니다: %s", inputPath)
+	}
+
+	// Try hwpparser convert first
+	cmd := exec.CommandContext(ctx, "hwpparser", "convert", inputPath, outputPath)
+	output, err := cmd.CombinedOutput()
+	if err == nil {
+		return fmt.Sprintf("PDF 변환 완료: %s", outputPath), nil
+	}
+
+	// Fallback to LibreOffice
+	lofficePath := "libreoffice"
+	if runtime.GOOS == "darwin" {
+		lofficePath = "/Applications/LibreOffice.app/Contents/MacOS/soffice"
+	}
+
+	outputDir := filepath.Dir(outputPath)
+	cmd = exec.CommandContext(ctx, lofficePath, "--headless", "--convert-to", "pdf", "--outdir", outputDir, inputPath)
+	output, err = cmd.CombinedOutput()
+	if err != nil {
+		return "", fmt.Errorf("PDF 변환 실패: %s\n%s", err.Error(), string(output))
+	}
+
+	// LibreOffice generates filename with .pdf extension
+	expectedOutput := strings.TrimSuffix(filepath.Base(inputPath), filepath.Ext(inputPath)) + ".pdf"
+	expectedPath := filepath.Join(outputDir, expectedOutput)
+
+	// Rename if output path is different
+	if expectedPath != outputPath {
+		if err := os.Rename(expectedPath, outputPath); err != nil {
+			return fmt.Sprintf("PDF 생성됨 (경로: %s)", expectedPath), nil
+		}
+	}
+
+	return fmt.Sprintf("PDF 변환 완료: %s", outputPath), nil
+}
+
 // RegisterBuiltinTools registers all built-in tools
 func RegisterBuiltinTools(registry *Registry) {
 	registry.Register(&SystemInfoTool{})
 	registry.Register(&ClipboardTool{})
 	registry.Register(&OpenURLTool{})
 	registry.Register(&HWPParserTool{})
+	registry.Register(&HWPToPDFTool{})
 }

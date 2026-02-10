@@ -7,9 +7,11 @@ import (
 	"runtime"
 
 	"DubaiCrab-Go/internal/agent"
+	"DubaiCrab-Go/internal/auth"
 	"DubaiCrab-Go/internal/config"
 	"DubaiCrab-Go/internal/kakao"
 	"DubaiCrab-Go/internal/ollama"
+	"DubaiCrab-Go/internal/relay"
 	"DubaiCrab-Go/internal/tools"
 
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
@@ -23,6 +25,8 @@ type App struct {
 	kakao        *kakao.Server
 	agent        *agent.Agent
 	toolRegistry *tools.Registry
+	relay        *relay.Client
+	auth         *auth.OAuthManager
 }
 
 // NewApp creates a new App application struct
@@ -48,6 +52,17 @@ func (a *App) startup(ctx context.Context) {
 	// Initialize tool registry
 	a.toolRegistry = tools.NewRegistry()
 	tools.RegisterBuiltinTools(a.toolRegistry)
+	tools.RegisterOcrTools(a.toolRegistry)
+
+	// Initialize relay client
+	a.relay = relay.NewClient(cfg.RelayURL)
+
+	// Initialize OAuth manager
+	a.auth = auth.NewOAuthManager()
+	// Try to load saved token
+	if err := a.auth.LoadSavedToken(); err != nil {
+		log.Printf("No saved auth token: %v", err)
+	}
 
 	// Initialize agent
 	a.agent = agent.NewAgent(a.ollama, a.toolRegistry)
@@ -394,4 +409,175 @@ func (a *App) SetOllamaModel(model string) error {
 // Greet returns a greeting (for testing bindings)
 func (a *App) Greet(name string) string {
 	return fmt.Sprintf("안녕하세요 %s님! Dubai Crab이 도와드리겠습니다! 🦀", name)
+}
+
+// ============================================
+// HWP to PDF Commands
+// ============================================
+
+// HWPConvertResult represents HWP conversion result
+type HWPConvertResult struct {
+	Success bool    `json:"success"`
+	Message *string `json:"message,omitempty"`
+	Error   *string `json:"error,omitempty"`
+}
+
+// ConvertHWPToPDF converts HWP file to PDF
+func (a *App) ConvertHWPToPDF(inputPath, outputPath string) HWPConvertResult {
+	tool := &tools.HWPToPDFTool{}
+	result, err := tool.Execute(a.ctx, map[string]interface{}{
+		"input_path":  inputPath,
+		"output_path": outputPath,
+	})
+
+	if err != nil {
+		errStr := err.Error()
+		return HWPConvertResult{
+			Success: false,
+			Error:   &errStr,
+		}
+	}
+
+	return HWPConvertResult{
+		Success: true,
+		Message: &result,
+	}
+}
+
+// ============================================
+// OCR Commands
+// ============================================
+
+// OcrResult represents OCR result
+type OcrResult struct {
+	Success   bool     `json:"success"`
+	Text      *string  `json:"text,omitempty"`
+	Error     *string  `json:"error,omitempty"`
+	LineCount *int     `json:"line_count,omitempty"`
+}
+
+// OcrFromFile performs OCR on an image file
+func (a *App) OcrFromFile(imagePath string) OcrResult {
+	result := tools.OcrFromFile(imagePath, "kor+eng")
+	return OcrResult{
+		Success:   result.Success,
+		Text:      result.Text,
+		Error:     result.Error,
+		LineCount: result.LineCount,
+	}
+}
+
+// OcrFromBase64 performs OCR on a base64-encoded image
+func (a *App) OcrFromBase64(base64Data string) OcrResult {
+	result := tools.OcrFromBase64(base64Data, "kor+eng")
+	return OcrResult{
+		Success:   result.Success,
+		Text:      result.Text,
+		Error:     result.Error,
+		LineCount: result.LineCount,
+	}
+}
+
+// ============================================
+// Relay Commands
+// ============================================
+
+// RelayStatus represents relay connection status
+type RelayStatus struct {
+	Connected bool   `json:"connected"`
+	Code      string `json:"code"`
+	URL       string `json:"url"`
+}
+
+// ConnectRelay connects to the relay server
+func (a *App) ConnectRelay(code string) (RelayStatus, error) {
+	// Set message handler
+	a.relay.SetHandler(func(msg relay.RelayMessage) (string, error) {
+		// Process message through Ollama
+		response, err := a.agent.ProcessMessage(a.ctx, msg.SessionID, msg.Content)
+		if err != nil {
+			return "", err
+		}
+		wailsRuntime.EventsEmit(a.ctx, "relay:message", map[string]interface{}{
+			"from":    msg.From,
+			"content": msg.Content,
+			"response": response,
+		})
+		return response, nil
+	})
+
+	if err := a.relay.Connect(code); err != nil {
+		return RelayStatus{}, err
+	}
+
+	if err := a.relay.Start(); err != nil {
+		return RelayStatus{}, err
+	}
+
+	status := a.relay.GetStatus()
+	return RelayStatus{
+		Connected: status.Connected,
+		Code:      status.Code,
+		URL:       status.URL,
+	}, nil
+}
+
+// DisconnectRelay disconnects from the relay server
+func (a *App) DisconnectRelay() {
+	a.relay.Disconnect()
+}
+
+// GetRelayStatus returns the relay connection status
+func (a *App) GetRelayStatus() RelayStatus {
+	status := a.relay.GetStatus()
+	return RelayStatus{
+		Connected: status.Connected,
+		Code:      status.Code,
+		URL:       status.URL,
+	}
+}
+
+// GenerateRelayCode generates a new relay connection code
+func (a *App) GenerateRelayCode() string {
+	return relay.GenerateCode()
+}
+
+// ============================================
+// OAuth Commands
+// ============================================
+
+// AuthStatus represents authentication status
+type AuthStatus struct {
+	Authenticated bool       `json:"authenticated"`
+	User          *auth.UserInfo `json:"user,omitempty"`
+	ExpiresAt     int64      `json:"expires_at,omitempty"`
+}
+
+// Login initiates OAuth login
+func (a *App) Login() (AuthStatus, error) {
+	status, err := a.auth.Login(a.ctx)
+	if err != nil {
+		return AuthStatus{}, err
+	}
+
+	return AuthStatus{
+		Authenticated: status.Authenticated,
+		User:          status.User,
+		ExpiresAt:     status.ExpiresAt,
+	}, nil
+}
+
+// Logout logs out the user
+func (a *App) Logout() error {
+	return a.auth.Logout()
+}
+
+// GetAuthStatus returns the current auth status
+func (a *App) GetAuthStatus() AuthStatus {
+	status := a.auth.GetAuthStatus()
+	return AuthStatus{
+		Authenticated: status.Authenticated,
+		User:          status.User,
+		ExpiresAt:     status.ExpiresAt,
+	}
 }
